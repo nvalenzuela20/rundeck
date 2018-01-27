@@ -214,6 +214,15 @@
                 </g:javascript>
             </g:unless>
         </g:if>
+        <!-- Hello world -->
+            <li class="${enc(attr: helloworldselected)}">
+            <g:link
+                    controller="framework" action="helloworld"
+                    class=" toptab ${enc(attr: helloworldselected)}"
+                    params="[project: params.project ?: request.project]">
+                <g:message code="gui.menu.HelloWorld" default="Hello World"/>
+            </g:link>
+            </li>
     </ul>
 </g:if>
 

@@ -2681,5 +2681,11 @@ class FrameworkController extends ControllerBase implements ApplicationContextAw
         }
         render(status: HttpServletResponse.SC_NO_CONTENT)
     }
+    
+    def helloworld(){
+        println('hello world')
+    }
+
+
 }
 
