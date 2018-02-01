@@ -70,6 +70,7 @@ task('createPom').doLast {
                 module 'script-plugin'
                 module 'localexec-plugin'
                 module 'copyfile-plugin'
+                module 'http-notifications-plugin'
             }
             dependencies{
                 dependency{
