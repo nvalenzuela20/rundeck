@@ -1,13 +1,20 @@
 package com.dtolabs.rundeck.plugin.http_notifications;
 
-import com.dtolabs.rundeck.plugins.notification.NotificationPlugin;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+
 import com.dtolabs.rundeck.core.plugins.Plugin;
 import com.dtolabs.rundeck.plugins.descriptions.PluginDescription;
 import com.dtolabs.rundeck.plugins.descriptions.PluginProperty;
-import java.util.*;
-import java.io.*;
-import java.net.*;
-import java.nio.charset.StandardCharsets;
+import com.dtolabs.rundeck.plugins.notification.NotificationPlugin;
 
 @Plugin(service="Notification",name="http-notification")
 @PluginDescription(title="Notification Plugin", description="An plugin for Rundeck Notifications.")
@@ -35,13 +42,20 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
 
     }
 
+    /**
+     * Call a page depending on the type of method to call
+     * 
+     * @param trigger 
+     * @param executionData
+     * @param config
+     * @return the flag with the answer successful or not  
+     */
     public boolean postNotification(String trigger, Map executionData, Map config) {
         if(METHOD_POST.equals(method) || METHOD_PUT.equals(method)) {
         	return methodBody();
         } else if(METHOD_GET.equals(method) || METHOD_DELETE.equals(method)) {
         	return methodNoBody();
         } else {
-        	//unknown method?
         	method = METHOD_GET;
         	return methodNoBody();
         }
@@ -63,8 +77,6 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
             }
             rd.close();
         
-            System.err.println(result.toString());//TODO:remove
-            
             if( HTTP_OK == conn.getResponseCode() ) {
             	return Boolean.TRUE;
             } else {
@@ -72,12 +84,16 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
             }
             
 
-        }catch (Exception e){
+        }catch ( MalformedURLException  e){
             System.err.println("Error: " + e.getMessage());
             return Boolean.FALSE;
-        } finally {
-        	//TODO: safely close objects
-        }
+        } catch (ProtocolException e) {
+        	System.err.println("Error: " + e.getMessage());
+            return Boolean.FALSE;
+		} catch (IOException e) {
+			System.err.println("Error: " + e.getMessage());
+            return Boolean.FALSE;
+		}
 
     }
 
@@ -90,7 +106,6 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
 	        conn.setRequestMethod(method);
 	        conn.setDoOutput(true);
 	        
-	        //write request
 	        byte[] out = body.getBytes(StandardCharsets.UTF_8);
 	        	        conn.setFixedLengthStreamingMode(out.length);
 	        if( contentType != null && !contentType.isEmpty() ) {
@@ -103,8 +118,7 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
 	        OutputStream os = conn.getOutputStream();
 	        os.write(out);
 	        os.close();
-	        
-	        //now read a response
+
 	        StringBuilder result = new StringBuilder();
 	        BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
@@ -113,19 +127,22 @@ public class HttpNotificationsPlugin implements NotificationPlugin{
             }
             rd.close();
         
-            System.err.println(result.toString());//TODO:remove
-	        
 	        if( HTTP_OK == conn.getResponseCode() ) {
             	return Boolean.TRUE;
             } else {
             	return Boolean.FALSE;
             }
-        } catch (Exception e) {
+        }catch ( MalformedURLException  e){
             System.err.println("Error: " + e.getMessage());
             return Boolean.FALSE;
-        } finally {
-        	//TODO: safely close objects
-        }
+        } catch (ProtocolException e) {
+        	System.err.println("Error: " + e.getMessage());
+            return Boolean.FALSE;
+		} catch (IOException e) {
+			System.err.println("Error: " + e.getMessage());
+            return Boolean.FALSE;
+		}
     }
+        
 
 }
