@@ -1,0 +1,8 @@
+compile: open a terminal and go to where rundeck sources are located. 
+         execute the following command './gradlew build -x test'
+
+installation: In your rundeck source, got to /plugins/http-notifications-plugin/build/libs and copy your 'rundeck-http-notifications-pluging-XXX.jar' to the libext directory inside of you are rundeck instalation.
+
+deploy: Stop and restart rundeck
+        if you don't know how to start rundeck you need to open a terminar and go to where rundeck is install
+        excute the following commnand 'java -jar rundeck-launcher-2.10.5-SNAPSHOT.jar'
